@@ -1,0 +1,43 @@
+;; solr data uploader configuration file
+{:current-set :angular-poc
+ :all-sets
+ ;; # contracts = 35
+ {:angular-poc {:host "localhost"
+                :port 1521
+                :user "ecm_esumitra_angularpoc"
+                :password "es1"
+                :service-name "orcl"
+                :update-rate 5 ;; messages-per-second
+                :num-threads 5 ;; number of db read/write threads
+                :document-buffer-size 10;; number of documents/rows to process concurrently
+                }}
+ :entities [
+            {:name "contract"
+             :sql "SELECT c.id as id,
+                   'contract' as entity,
+                   c.customerid as contractName,
+                   c.title as contractTitle,
+                   c.contract_number as contractNumber,
+                   c.type as contractType,
+                   c.status as contractStatus,
+                   c.effectivestartdate as contractEffectiveStartDate,
+                   c.effectiveenddate as contractEffectiveEndDate,
+                   c.createdon as contractCreatedOn
+                   FROM contract c, contractrevision cr
+                   WHERE c.id=cr.contractid
+                   AND c.revision=cr.revision
+                   AND c.revision>0"}
+            {:name "contractCompany"
+             :sql "select 'contractCompany' as entity,
+                   cc.contract_company_id as id,
+                   cc.contract_id as contractId,
+                   cc.company_name as companyName,
+                   cc.isinternal as isInternal,
+                   cc.role as companyRole
+                   FROM contract c, contractrevision cr, contract_company cc
+                   WHERE c.id=cc.contract_id
+                   AND c.revision=cc.contract_revision
+                   AND c.id=cr.contractid
+                   AND c.revision=cr.revision
+                   AND c.revision>0"}
+            ]}
